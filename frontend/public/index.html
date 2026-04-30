@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Trinethra Analyzer</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #dfe9f3, #ffffff);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 60%;
+      margin: 60px auto;
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      resize: none;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #6c63ff;
+    }
+
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 25px;
+      background: #6c63ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #574fd6;
+    }
+
+    .output-box {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f7f9fc;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .loading {
+      text-align: center;
+      color: #777;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h2> Supervisor Feedback Analyzer</h2>
+
+    <textarea id="input" placeholder="Paste supervisor transcript here..."></textarea>
+
+    <button onclick="run()">Run Analysis</button>
+
+    <div id="output" class="output-box"></div>
+  </div>
+
+  <script>
+    async function run() {
+      const text = document.getElementById("input").value;
+      const outputDiv = document.getElementById("output");
+
+      if (!text) {
+        alert("Please enter transcript");
+        return;
+      }
+
+      outputDiv.innerHTML = "<div class='loading'>Analyzing... ⏳</div>";
+
+      try {
+        const res = await fetch("http://localhost:5000/analyze", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ transcript: text })
+        });
+
+        const data = await res.json();
+
+        let result = data.result
+          .replace(/\*\*/g, "")
+          .replace(/\n/g, "<br>");
+
+        outputDiv.innerHTML = result;
+
+      } catch (error) {
+        outputDiv.innerHTML = "❌ Error connecting to backend";
+      }
+    }
+  </script>
+
+</body>
+</html>
